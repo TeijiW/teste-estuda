@@ -15,11 +15,11 @@ primary key (id)
 )DEFAULT CHARSET=utf8mb4;
 
 create table if not exists escolas(
-id int auto_increment,
+id int not null,
 nome varchar(60),
 endereco varchar(60),
-`data` date,
-situacao enum('Em atividade', 'Paralizada', 'Extinta', 'Extinta no ano anterior'),
+`data` varchar(30) not null,
+situacao enum('Em atividade', 'Paralisada', 'Extinta', 'Extinta no ano anterior') not null,
 primary key(id)
 )DEFAULT CHARSET=utf8mb4;
 

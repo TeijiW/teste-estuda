@@ -19,5 +19,6 @@ $escolas = new Escolas();
 // $turmas->create($data);
 // $turmas->update($data);
 // $turmas->delete($data);
+// $escolas->read($data);
 $escolas->updateWithAPI();
 ?>

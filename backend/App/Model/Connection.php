@@ -1,6 +1,6 @@
 <?php
 namespace App\model;
-// use PDO;
+use PDO;
 class Connection{
     const dbHost = "mysql:host=localhost;dbname=estuda;charset=utf8";
     const dbUser = "root";
@@ -10,9 +10,10 @@ class Connection{
     public static function getConnection(){
         if(!isset(self::$instance)){
             try{
-                self::$instance = new \PDO(self::dbHost, self::dbUser, self::dbPassword);
+                self::$instance = new PDO(self::dbHost, self::dbUser, self::dbPassword);
             }catch(PDOException $error){
                 throw new PDOExcepction($error);
+                print_r($error);
             }
             return self::$instance;
         }
