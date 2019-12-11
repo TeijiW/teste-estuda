@@ -20,7 +20,7 @@ Class Escolas{
         foreach($jsonArray as $index => $json){
             $id = $json->cod;
             $nome = $json->nome;
-            $data = $json->anoCenso;
+            $data = date("Y-m-d");
             $situacao = $json->situacaoFuncionamentoTxt;
             $sql .= "($id, '$nome', '$data', '$situacao')";
             if($index+1 !== $jsonArrayLength){
@@ -40,12 +40,15 @@ Class Escolas{
             http_response_code(200);
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             echo json_encode($result);
+        }else{
+            http_response_code(204);
         }
     }
 
     // Ajustar
     public function create($data) {
         $util = new Util();
+        $data->data = date("Y-m-d");
         $data = $util->setObjectSchema($data, $this->keys);
         $data = $util->isEmptyString($data);
         $sql = "insert into $this->table (nome, endereco, data, situacao ) values (?, ?, ?, ?)";
@@ -57,12 +60,14 @@ Class Escolas{
     }
 
     public function update($data) {
+        $data->data = date("Y-m-d");
         $util = new Util();
         $data = $util->isEmptyString($data);
         if (isset($data->id)){
             $sql = "update $this->table set ";
             $index = 0;
             $dataLength = count((array)$data);
+            $data->data = date("Y-m-d");
             foreach ($data as $key => $value) { 
                 $index++;
                 if ($key === "id") continue;

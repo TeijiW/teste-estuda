@@ -18,7 +18,7 @@ create table if not exists escolas(
 id int not null,
 nome varchar(60),
 endereco varchar(60),
-`data` varchar(30) not null,
+`data` date not null,
 situacao enum('Em atividade', 'Paralisada', 'Extinta', 'Extinta no ano anterior') not null,
 primary key(id)
 )DEFAULT CHARSET=utf8mb4;

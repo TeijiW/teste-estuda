@@ -15,6 +15,8 @@ Class Alunos{
             http_response_code(200);
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             echo json_encode($result);
+        }else{
+            http_response_code(204);
         }
     }
 
