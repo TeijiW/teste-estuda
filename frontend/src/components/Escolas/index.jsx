@@ -13,8 +13,8 @@ const server = api()
 
 const headerProps = {
 	icon: "users",
-	title: "Turmas",
-	subtitle: "Listagem dos Turmas"
+	title: "Escolas",
+	subtitle: "Listagem dos Escolas"
 }
 
 const thList = [
@@ -24,23 +24,23 @@ const thList = [
 		showSort: false
 	},
 	{
-		id: "nivel",
-		label: "Nível / Ensino",
+		id: "nome",
+		label: "Nome",
 		showSort: false
 	},
 	{
-		id: "turno",
-		label: "Turno",
+		id: "endereco",
+		label: "Endereço",
 		showSort: false
 	},
 	{
-		id: "ano",
-		label: "Ano",
+		id: "data",
+		label: "Data de última atualização",
 		showSort: false
 	},
 	{
-		id: "serie",
-		label: "Série",
+		id: "situacao",
+		label: "Situação",
 		showSort: false
 	},
 	{
@@ -51,13 +51,12 @@ const thList = [
 ]
 
 const initialState = {
-	turma: {
+	escola: {
 		id: "",
-		nivel: "",
-		turno: "",
-		ano: "2019",
-		serie: "",
-		id_escola: ""
+		nome: "",
+		endereco: "",
+		data: "",
+		situacao: ""
 	},
 	initialList: [],
 	list: [],
@@ -80,39 +79,31 @@ export default class User extends Component {
 			name: "id"
 		},
 		{
-			type: "Dropdown",
-			label: "Nível/Ensino",
-			name: "nivel",
-			values: ["Fundamental", "Medio"]
-		},
-		{
-			type: "Dropdown",
-			label: "Turno",
-			name: "turno",
-			values: ["Matutino", "Vespertino", "Integral"]
-		},
-		{
-			type: "NumberInput",
-			name: "ano",
-			label: "Ano"
-		},
-		{
-			type: "NumberInput",
-			name: "serie",
-			label: "Série",
-			min: 1,
-			max: 9
+			type: "TextInput",
+			label: "Nome",
+			name: "nome"
 		},
 		{
 			type: "TextInput",
-			label: "Código da Escola",
-			name: "id_escola"
+			label: "Endereço",
+			name: "endereco"
+		},
+		{
+			type: "Dropdown",
+			name: "situacao",
+			label: "Situação",
+			values: [
+				"Em atividade",
+				"Paralisada",
+				"Extinta",
+				"Extinta no ano anterior"
+			]
 		}
 	]
 
 	async componentWillMount() {
 		try {
-			const list = await server.get({ dataGroup: "turmas" })
+			const list = await server.get({ dataGroup: "escolas" })
 			this.setState({ initialList: list })
 			this.setState({ list })
 			this.listSort("id")
@@ -130,18 +121,18 @@ export default class User extends Component {
 		}
 	}
 
-	load = turma => {
-		this.setState({ turma })
+	load = escola => {
+		this.setState({ escola })
 		this.setState({ showErrorTable: false })
 		if (!this.state.showForm) this.setState({ errors: [], errorsTable: [] })
 		if (!this.state.showForm) this.formToggle()
 	}
 
-	remove = async turma => {
+	remove = async escola => {
 		try {
-			turma.dataGroup = "turmas"
-			await server.remove(turma)
-			const list = this.state.list.filter(element => element !== turma)
+			escola.dataGroup = "escolas"
+			await server.remove(escola)
+			const list = this.state.list.filter(element => element !== escola)
 			this.setState({ list })
 		} catch (error) {
 			const { errorsTable } = this.state
@@ -152,20 +143,20 @@ export default class User extends Component {
 	}
 
 	save = async () => {
-		const { turma } = this.state
+		const { escola } = this.state
 		if (this.state.errors.length < 1) {
 			try {
-				turma.dataGroup = "turmas"
-				const response = await server.save(turma)
-				const responseWithID = { ...response, ...turma }
-				if (response.id) turma.id = response.id
+				escola.dataGroup = "escolas"
+				const response = await server.save(escola)
+				const responseWithID = { ...response, ...escola }
+				if (response.id) escola.id = response.id
 				const list = getUpdatedList(
-					turma.id ? turma : responseWithID,
+					escola.id ? escola : responseWithID,
 					this.state.list
 				)
 				this.setState({
 					list,
-					turma: initialState.turma,
+					escola: initialState.escola,
 					saveButtonText: initialState.saveButtonText
 				})
 				console.log(this.state.list)
@@ -179,6 +170,11 @@ export default class User extends Component {
 				return await this.setState({ errorsTable, showErrorTable: true })
 			}
 		}
+	}
+
+	updateEscolasAPI = () => {
+		server.updateEscolas()
+		window.location.reload()
 	}
 
 	listOrderToggle = async state => {
@@ -242,14 +238,14 @@ export default class User extends Component {
 		console.clear()
 		console.log(event.target.name)
 		console.log(event.target.value)
-		const turma = await updateFieldUtil(event, this.state.turma)
-		this.setState({ turma })
+		const escola = await updateFieldUtil(event, this.state.escola)
+		this.setState({ escola })
 	}
 
 	clear = () => {
-		const { turma } = this.state
-		this.setState({ turma })
-		this.setState({ turma: initialState.turma })
+		const { escola } = this.state
+		this.setState({ escola })
+		this.setState({ escola: initialState.escola })
 		this.formToggle()
 		this.setState({ saveButtonText: initialState.saveButtonText })
 		this.setState({ fieldList: initialState.fieldList })
@@ -281,10 +277,8 @@ export default class User extends Component {
 					showPrintButton={false}
 					showSearchBar={false}
 					addButtonText={"Registrar Turma"}
-					updateButtonText={"Atualizar"}
-					update={() => {
-						window.location.reload()
-					}}
+					updateButtonText={"Atualizar lista de escolas - API"}
+					update={this.updateEscolasAPI}
 				/>
 			)
 		}
@@ -299,7 +293,7 @@ export default class User extends Component {
 					handleSubmit={this.handleSubmit}
 					clear={this.clear}
 					saveButtonText="Salvar"
-					fieldState={this.state.turma}
+					fieldState={this.state.escola}
 					fieldList={this.fieldList}
 				/>
 			)

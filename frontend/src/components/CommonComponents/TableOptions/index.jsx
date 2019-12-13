@@ -14,10 +14,13 @@ export default props => {
 	const {
 		formToggle,
 		filterToggle,
+		updateButtonText,
+		update,
 		searchQuery,
 		searchOnChange,
 		generatePDF,
 		showAddButton,
+		showUpdateButton,
 		showFilterButton,
 		showPrintButton,
 		showSearchBar,
@@ -34,6 +37,21 @@ export default props => {
 				>
 					<i className="fa fa-plus fa-fw" />
 					{addButtonText}
+				</button>
+			)
+		}
+	}
+
+	const renderUpdateButton = () => {
+		if (showUpdateButton) {
+			return (
+				<button
+					style={tableOptionsBtnStyle}
+					className="btn float-left"
+					onClick={() => update()}
+				>
+					<i className="fa fa-refresh fa-fw" />
+					{updateButtonText}
 				</button>
 			)
 		}
@@ -85,6 +103,7 @@ export default props => {
 		<div className="row">
 			<div className="col">
 				{renderAddButton()}
+				{renderUpdateButton()}
 				{renderFilterButton()}
 				{renderPrintButton()}
 			</div>

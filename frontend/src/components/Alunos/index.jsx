@@ -271,10 +271,15 @@ export default class User extends Component {
 				<TableOptions
 					formToggle={this.formToggle}
 					showAddButton={true}
+					showUpdateButton={true}
 					showFilterButton={false}
 					showPrintButton={false}
 					showSearchBar={false}
 					addButtonText={"Registrar Aluno"}
+					updateButtonText={"Atualizar"}
+					update={() => {
+						window.location.reload()
+					}}
 				/>
 			)
 		}
