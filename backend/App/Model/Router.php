@@ -29,6 +29,9 @@ class Router{
         foreach($this->routes as $route){
             if ($this->parsedURL === $route["url"] && $this->requestMethod === $route["method"]){
                 try{
+                    if ($route["method"] === "delete"){
+                        echo $route["method"];
+                    }
                     $route["callback"]($this->data);
                 }catch(Exception $error){
                     http_response_code(500);

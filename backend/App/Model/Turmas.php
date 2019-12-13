@@ -29,7 +29,10 @@ Class Turmas{
         foreach($this->keys as $index => $value){
             $stmt->bindValue($index+1, $data->{$value});
         }
-        $stmt->execute() ? http_response_code(204) : http_response_code(400);
+        $stmt->execute() ? http_response_code(200) : http_response_code(400);
+        $lastID = Connection::getLastID();
+        $lastID = array("id"=>$lastID);
+        echo json_encode($lastID);
     }
 
     public function update($data) {
@@ -37,19 +40,26 @@ Class Turmas{
         $data = $util->isEmptyString($data);
         if (isset($data->id)){
             $sql = "update $this->table set ";
-            $count = 0;
+            $index = 0;
             $dataLength = count((array)$data);
             foreach ($data as $key => $value) { 
-                $count += 1;
+                $index += 1;
                 if ($key === "id") continue;
+                if ($value === null || $value === "") {
+                    $index -= 1;
+                    continue;
+                }
                 if (gettype($value) === "string"){
                     $sql .= "$key = '$value'";
                 }else{
                     $sql .= "$key = $value";
                 }
-                if($count !== $dataLength){
+                if($index !== $dataLength){
                     $sql .= ", ";
                 }
+            }
+            if (substr($sql, -2) === ", "){
+                $sql = substr($sql, 0, -2);
             }
             $sql .= " where id = $data->id;";
             $stmt = Connection::getConnection()->prepare($sql);

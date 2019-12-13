@@ -14,7 +14,17 @@ Class Alunos{
         if ($stmt->rowCount() > 0){
             http_response_code(200);
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            echo json_encode($result);
+            // print("<pre>".print_r($result,true)."</pre>");
+            foreach ($result as $index => $item) { 
+                $nascimento =  $item['nascimento'];
+                if ($nascimento !== "" && $nascimento !== null){
+                    $dateArray = explode("-", $nascimento);
+                    $dateArray = array ($dateArray[2], $dateArray[1], $dateArray[0]);
+                    $dateArray = implode("/", $dateArray);
+                    $result[$index]['nascimento'] = $dateArray;
+                }
+            }
+                echo json_encode($result, JSON_UNESCAPED_SLASHES);
         }else{
             http_response_code(204);
         }
@@ -24,14 +34,20 @@ Class Alunos{
         $util = new Util();
         $data = $util->setObjectSchema($data, $this->keys);
         $data = $util->isEmptyString($data);
+        if (isset($data->nascimento)) {
+            $dateArray = explode("/", $data->nascimento);
+            $data->nascimento = "$dateArray[2]-$dateArray[1]-$dateArray[0]";
+        }
         if (isset($data->nome) && isset($data->email)){
             $sql = "insert into $this->table (nome, telefone, email, nascimento, genero) values (?, ?, ?, ?, ?)";
             $stmt = Connection::getConnection()->prepare($sql);
             foreach($this->keys as $index => $value){
                 $stmt->bindValue($index+1, $data->{$value});
             }
-            $stmt->execute() ? http_response_code(204) : http_response_code(400);
-            
+            $stmt->execute() ? http_response_code(200) : http_response_code(400);
+            $lastID = Connection::getLastID();
+            $lastID = array("id"=>$lastID);
+            echo json_encode($lastID);
         }else{
             http_response_code(400);
         }
@@ -42,26 +58,38 @@ Class Alunos{
         $data = $util->isEmptyString($data);
         if (isset($data->id)){
             $sql = "update $this->table set ";
-            $count = 0;
+            $index = 0;
             $dataLength = count((array)$data);
             foreach ($data as $key => $value) { 
-                $count += 1;
+                if ($key === "nascimento" && $value !== null && $value !== ""){
+                    $dateArray = explode("/", $value);
+                    $data->nascimento = "$dateArray[2]-$dateArray[1]-$dateArray[0]";
+                    $value = "$dateArray[2]-$dateArray[1]-$dateArray[0]";
+                }
+                $index += 1;
                 if ($key === "id") continue;
+                if ($value === null || $value === "") {
+                    $index -= 1;
+                    continue;
+                }
                 if (gettype($value) === "string"){
                     $sql .= "$key = '$value'";
                 }else{
                     $sql .= "$key = $value";
                 }
-                if($count !== $dataLength){
+                if($index !== $dataLength){
                     $sql .= ", ";
                 }
+            }
+            if (substr($sql, -2) === ", "){
+                $sql = substr($sql, 0, -2);
             }
             $sql .= " where id = $data->id;";
             $stmt = Connection::getConnection()->prepare($sql);
             if ($stmt->execute()){
                 http_response_code(204);
             }else{
-                var_dump( $stmt->errorInfo()); 
+                // var_dump( $stmt->errorInfo()); 
                 http_response_code(500);
             }
         }else{
@@ -72,9 +100,14 @@ Class Alunos{
     public function delete($data) {
         if(isset($data->id)){
             $sql = "delete from $this->table where id = $data->id;";
-            echo $sql;
             $stmt = Connection::getConnection()->prepare($sql);
-            $stmt->execute() ? http_response_code(204) : http_response_code(400);
+            // $stmt->execute() ? http_response_code(204) : http_response_code(400);
+            if ($stmt->execute()){
+                http_response_code(200);
+            }else{
+                var_dump( $stmt->errorInfo()); 
+                http_response_code(500);
+            }
         }else{
             http_response_code(400);
         }

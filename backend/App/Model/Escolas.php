@@ -39,6 +39,15 @@ Class Escolas{
         if ($stmt->rowCount() > 0){
             http_response_code(200);
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($result as $index => $item) { 
+                $data =  $item['data'];
+                if ($data !== "" && $data !== null){
+                    $dateArray = explode("-", $data);
+                    $dateArray = array ($dateArray[2], $dateArray[1], $dateArray[0]);
+                    $dateArray = implode("/", $dateArray);
+                    $result[$index]['data'] = $dateArray;
+                }
+            }
             echo json_encode($result);
         }else{
             http_response_code(204);
@@ -56,7 +65,10 @@ Class Escolas{
         foreach($this->keys as $index => $value){
             $stmt->bindValue($index+1, $data->{$value});
         }
-        $stmt->execute() ? http_response_code(204) : http_response_code(400);
+        $stmt->execute() ? http_response_code(200) : http_response_code(400);
+        $lastID = Connection::getLastID();
+        $lastID = array("id"=>$lastID);
+        echo json_encode($lastID);
     }
 
     public function update($data) {
@@ -71,6 +83,10 @@ Class Escolas{
             foreach ($data as $key => $value) { 
                 $index++;
                 if ($key === "id") continue;
+                if ($value === null || $value === "") {
+                    $index -= 1;
+                    continue;
+                }
                 if (gettype($value) === "string"){
                     $sql .= "$key = '$value'";
                 }else{
@@ -79,6 +95,9 @@ Class Escolas{
                 if($index !== $dataLength){
                     $sql .= ", ";
                 }
+            }
+            if (substr($sql, -2) === ", "){
+                $sql = substr($sql, 0, -2);
             }
             $sql .= " where id = $data->id;";
             $stmt = Connection::getConnection()->prepare($sql);

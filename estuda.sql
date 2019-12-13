@@ -10,7 +10,7 @@ nome varchar(60) not null,
 telefone varchar(20),
 email varchar(60) not null,
 nascimento date,
-genero enum('M', 'F'),
+genero enum('Masculino', 'Feminino'),
 primary key (id)
 )DEFAULT CHARSET=utf8mb4;
 
