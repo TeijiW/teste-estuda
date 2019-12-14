@@ -14,12 +14,14 @@ import getUpdatedList from "../../utils/getUpdatedList"
 
 const server = api()
 
+// Configurações para amostragem na página
 const headerProps = {
-	icon: "users",
+	icon: "book",
 	title: "Turmas",
 	subtitle: "Listagem dos Turmas"
 }
 
+// Lista de cabeçalhos da tabela
 const thList = [
 	{
 		id: "id",
@@ -62,6 +64,7 @@ const initialState = {
 		serie: "",
 		id_escola: ""
 	},
+	// Objeto para os detalhes
 	turmaDetail: {
 		"Código de Identificação": "",
 		Nível: "Fundamental",
@@ -78,17 +81,21 @@ const initialState = {
 		query: "",
 		list: []
 	},
+	// Estados de renderização
 	showErrorTable: false,
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
 	showDetail: false,
+	// Estados de erro
 	errorsTable: [],
 	errors: [],
+	// Listas relacionadas as escolas
 	escolasList: [],
 	escolasObjectList: []
 }
 
+// Configurações para o Fuse [fusejs.io]
 const fuseOptions = {
 	threshold: 0.2,
 	location: 0,
@@ -101,6 +108,7 @@ const fuseOptions = {
 export default class User extends Component {
 	state = { ...initialState }
 
+	// Lista e configurações dos campos do formulário
 	fieldList = [
 		{
 			type: "TextInput",
@@ -212,6 +220,7 @@ export default class User extends Component {
 		}
 	}
 
+	// Troca de ordem na tabela
 	listOrderToggle = async state => {
 		if (state.listOrder === "increasing")
 			await this.setState({ listOrder: "decreasing" })
@@ -219,6 +228,7 @@ export default class User extends Component {
 			await this.setState({ listOrder: "increasing" })
 	}
 
+	// Checagem de item definido para ordenação na tabela
 	thListToggle = field => {
 		thList.forEach(item => {
 			if (item.id === field) {
@@ -238,6 +248,7 @@ export default class User extends Component {
 		})
 	}
 
+	// Alterna entre tela de detalhes e tabela e determina os estados necessários
 	detailToggle = async item => {
 		const { showForm, showTable } = this.state
 		await this.setState({ turma: item })
@@ -265,7 +276,9 @@ export default class User extends Component {
 				showForm: false,
 				showTable: true,
 				showTableOptions: true,
-				showDetail: false
+				showDetail: false,
+				turma: initialState.turma,
+				turmaDetail: initialState.turmaDetail
 			})
 		}
 	}
@@ -307,6 +320,7 @@ export default class User extends Component {
 		this.setState({ turma })
 	}
 
+	// Método exclusivo para atualizar campo de pesquisa
 	updateSearchQuery = async event => {
 		const search = await updateFieldUtil(event, this.state.search)
 		this.setState({ search })

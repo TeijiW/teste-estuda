@@ -12,12 +12,15 @@ import DinamicDropdown from "./DinamicDropdown"
 export default props => {
 	const { errors, fieldState, warnings } = props
 
+	// Renderização dinãmica do texto do botão de "Limpar"
 	const renderClearButton = () => {
 		if (props.clearButtonText) {
 			return props.clearButtonText
 		}
 		return "Cancelar"
 	}
+
+	// Renderização dos campos conforme as configurações
 	const renderFields = fieldList => {
 		return fieldList.map(field => {
 			const { type, name, label } = field

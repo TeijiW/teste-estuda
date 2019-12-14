@@ -3,6 +3,8 @@ import Rows from "./Rows"
 import TableHeaders from "./TableHeaders"
 
 export default props => {
+	// TableHaders - Renderiza os cabeçalhos conforme a lista
+	// Rows - Renderiza as linhas conforme a lista dos objetos
 	return (
 		<div>
 			<table className="table mt-4">

@@ -43,7 +43,6 @@ const api = () => {
 				const response = await axios.post("/" + dataGroup, data)
 				return response.data
 			} catch (error) {
-				console.log(error)
 				throw error
 			}
 		}

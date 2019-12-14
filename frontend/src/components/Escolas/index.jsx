@@ -15,12 +15,14 @@ import notEmptyValidation from "../../utils/notEmptyValidation"
 
 const server = api()
 
+// Configurações para amostragem na página
 const headerProps = {
-	icon: "users",
+	icon: "school",
 	title: "Escolas",
 	subtitle: "Listagem dos Escolas"
 }
 
+// Lista de cabeçalhos da tabela
 const thList = [
 	{
 		id: "id",
@@ -62,6 +64,7 @@ const initialState = {
 		data: "",
 		situacao: ""
 	},
+	// Objeto para os detalhes
 	escolaDetail: {
 		"Código de Identificação": "",
 		Nome: "",
@@ -77,15 +80,18 @@ const initialState = {
 		query: "",
 		list: []
 	},
+	// Estados de renderização
 	showErrorTable: false,
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
 	showDetail: false,
+	// Estados de erro
 	errorsTable: [],
 	errors: []
 }
 
+// Configurações para o Fuse [fusejs.io]
 const fuseOptions = {
 	threshold: 0.4,
 	location: 0,
@@ -98,6 +104,7 @@ const fuseOptions = {
 export default class User extends Component {
 	state = { ...initialState }
 
+	// Lista e configurações dos campos do formulário
 	fieldList = [
 		{
 			type: "TextInput",
@@ -197,12 +204,13 @@ export default class User extends Component {
 		}
 	}
 
+	// Método que atualiza a tabela de escolas com os dados da API
 	updateEscolasAPI = () => {
 		server.updateEscolas()
 		window.location.reload()
-		window.location.reload()
 	}
 
+	// Troca de ordem na tabela
 	listOrderToggle = async state => {
 		if (state.listOrder === "increasing")
 			await this.setState({ listOrder: "decreasing" })
@@ -210,6 +218,7 @@ export default class User extends Component {
 			await this.setState({ listOrder: "increasing" })
 	}
 
+	// Checagem de item definido para ordenação na tabela
 	thListToggle = field => {
 		thList.forEach(item => {
 			if (item.id === field) {
@@ -229,6 +238,7 @@ export default class User extends Component {
 		})
 	}
 
+	// Alterna entre tela de detalhes e tabela e determina os estados necessários
 	detailToggle = async item => {
 		const { showForm, showTable } = this.state
 		await this.setState({ escola: item })
@@ -255,12 +265,12 @@ export default class User extends Component {
 				showForm: false,
 				showTable: true,
 				showTableOptions: true,
-				showDetail: false
+				showDetail: false,
+				escola: initialState.escola,
+				escolaDetail: initialState.escolaDetail
 			})
 		}
 	}
-
-	detail = item => {}
 
 	listSort = async field => {
 		if (this.state.listSortKey === field) {
@@ -314,6 +324,7 @@ export default class User extends Component {
 		this.setState({ escola })
 	}
 
+	// Método exclusivo para atualizar campo de pesquisa
 	updateSearchQuery = async event => {
 		const search = await updateFieldUtil(event, this.state.search)
 		this.setState({ search })

@@ -11,7 +11,7 @@ export default props => {
 	return (
 		<header className="header flex-column">
 			<h1 className="mt-3 lead" style={titleStyle}>
-				<i className={`fa fa-${props.icon} fa-fw`} />
+				<i className={`fas fa-${props.icon} fa-fw`} />
 				{props.title}
 			</h1>
 			<h3 className="mt-3 lead">{props.subtitle}</h3>

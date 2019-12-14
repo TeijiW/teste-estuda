@@ -15,12 +15,14 @@ import notEmptyValidation from "../../utils/notEmptyValidation"
 
 const server = api()
 
+// Configurações para amostragem na página
 const headerProps = {
 	icon: "users",
 	title: "Alunos",
 	subtitle: "Listagem dos Alunos"
 }
 
+// Lista de cabeçalhos da tabela
 const thList = [
 	{
 		id: "id",
@@ -63,6 +65,7 @@ const initialState = {
 		nascimento: "",
 		genero: "Masculino"
 	},
+	// Objeto para os detalhes
 	alunoDetail: {
 		"Código Identificador": "",
 		Nome: "",
@@ -79,19 +82,23 @@ const initialState = {
 		query: "",
 		list: []
 	},
+	// Estados de renderização
 	showErrorTable: false,
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
 	showDetail: false,
+	// Estados de erro
 	errorsTable: [],
 	errors: [],
+	// Listas relacionadas as turmas
 	turmasList: [],
-	initialTurmasList: [],
 	selectedTurmasList: [],
+	// Armazenagem do último ID determinado a última inserção do Banco de Dados
 	lastInsertedId: ""
 }
 
+// Configurações para o Fuse [fusejs.io]
 const fuseOptions = {
 	threshold: 0.2,
 	location: 0,
@@ -104,6 +111,7 @@ const fuseOptions = {
 export default class User extends Component {
 	state = { ...initialState }
 
+	// Lista e configurações dos campos do formulário
 	fieldList = [
 		{
 			type: "TextInput",
@@ -219,10 +227,12 @@ export default class User extends Component {
 		}
 	}
 
+	// Método para quando um item é selecionado na Dropdown dinâmico (turmas)
 	onSelectDinamicDropdown = (optionsList, selectedItem) => {
 		this.setState({ selectedTurmasList: optionsList })
 	}
 
+	// Método para quando um item é removido na Dropdown dinâmico (turmas)
 	onRemoveDinamicDropdown = (optionsList, removedItem) => {
 		this.setState({ selectedTurmasList: optionsList })
 	}
@@ -235,9 +245,10 @@ export default class User extends Component {
 			} - ${item.nivel ? item.nivel : "?"} - ${item.serie ? item.serie : "?"}`
 			return item
 		})
-		this.setState({ initialTurmasList: turmasList, turmasList })
+		this.setState({ turmasList })
 	}
 
+	// Troca de ordem na tabela
 	listOrderToggle = async state => {
 		if (state.listOrder === "increasing")
 			await this.setState({ listOrder: "decreasing" })
@@ -245,6 +256,7 @@ export default class User extends Component {
 			await this.setState({ listOrder: "increasing" })
 	}
 
+	// Checagem de item definido para ordenação na tabela
 	thListToggle = field => {
 		thList.forEach(item => {
 			if (item.id === field) {
@@ -265,6 +277,7 @@ export default class User extends Component {
 		})
 	}
 
+	// Alterna entre tela de detalhes e tabela e determina os estados necessários
 	detailToggle = async (item, justToggle = false) => {
 		const { showForm, showTable } = this.state
 		if (!justToggle) {
@@ -367,6 +380,7 @@ export default class User extends Component {
 		this.setState({ aluno })
 	}
 
+	// Método exclusivo para atualizar campo de pesquisa
 	updateSearchQuery = async event => {
 		const search = await updateFieldUtil(event, this.state.search)
 		this.setState({ search })
@@ -385,8 +399,6 @@ export default class User extends Component {
 	}
 
 	clear = () => {
-		const { aluno } = this.state
-		this.setState({ aluno })
 		this.setState({ aluno: initialState.aluno })
 		this.formToggle()
 		this.setState({
