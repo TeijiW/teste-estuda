@@ -1,4 +1,6 @@
 import React, { Component } from "react"
+import { isEmpty } from "lodash"
+import Fuse from "fuse.js"
 import Form from "../CommonComponents/Form"
 import Table from "../CommonComponents/Table"
 import TableOptions from "../CommonComponents/TableOptions"
@@ -8,6 +10,7 @@ import api from "../../config/api"
 import updateFieldUtil from "../../utils/updateField"
 import exists from "../../utils/exists"
 import getUpdatedList from "../../utils/getUpdatedList"
+import notEmptyValidation from "../../utils/notEmptyValidation"
 
 const server = api()
 
@@ -54,20 +57,38 @@ const initialState = {
 	aluno: {
 		id: "",
 		nome: "",
-		email: "",
 		telefone: "",
+		email: "",
 		nascimento: "",
 		genero: "Masculino"
 	},
 	initialList: [],
 	list: [],
 	listOrder: "increasing",
+	listSortKey: "id",
+	search: {
+		query: "",
+		list: []
+	},
 	showErrorTable: false,
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
 	errorsTable: [],
-	errors: []
+	errors: [],
+	turmasList: [],
+	initialTurmasList: [],
+	selectedTurmasList: [],
+	lastInsertedId: ""
+}
+
+const fuseOptions = {
+	threshold: 0.2,
+	location: 0,
+	distance: 100,
+	maxPatternLength: 32,
+	minMatchCharLength: 3,
+	keys: ["nome", "email", "nascimento", "genero"]
 }
 
 export default class User extends Component {
@@ -81,12 +102,12 @@ export default class User extends Component {
 		},
 		{
 			type: "TextInput",
-			label: "Nome",
+			label: "Nome*",
 			name: "nome"
 		},
 		{
 			type: "TextInput",
-			label: "Email",
+			label: "Email*",
 			name: "email"
 		},
 		{
@@ -96,6 +117,7 @@ export default class User extends Component {
 		},
 		{
 			type: "Dropdown",
+			label: "Gênero",
 			values: ["Masculino", "Feminino"],
 			name: "genero"
 		},
@@ -112,6 +134,14 @@ export default class User extends Component {
 			this.setState({ initialList: list })
 			this.setState({ list })
 			this.listSort("id")
+			await this.getTurmas()
+			this.fieldList.push({
+				type: "DinamicDropdown",
+				label: "Seleção de turmas",
+				options: this.state.turmasList,
+				onRemove: this.onRemoveDinamicDropdown,
+				onSelect: this.onSelectDinamicDropdown
+			})
 		} catch (error) {
 			let errorTitle = { title: "Undefined error, please contact the admin" }
 			if (error.status && error.statusText) {
@@ -126,10 +156,12 @@ export default class User extends Component {
 		}
 	}
 
-	load = aluno => {
-		this.setState({ aluno })
+	load = async aluno => {
 		this.setState({ showErrorTable: false })
 		if (!this.state.showForm) this.setState({ errors: [], errorsTable: [] })
+		const selectedTurmasList = await server.getTurmasFromAlunos(aluno)
+		await this.setState({ selectedTurmasList })
+		this.setState({ aluno })
 		if (!this.state.showForm) this.formToggle()
 	}
 
@@ -162,7 +194,8 @@ export default class User extends Component {
 				this.setState({
 					list,
 					aluno: initialState.aluno,
-					saveButtonText: initialState.saveButtonText
+					saveButtonText: initialState.saveButtonText,
+					lastInsertedId: aluno.id
 				})
 				await this.setState({ errors: [] })
 				this.formToggle()
@@ -174,6 +207,25 @@ export default class User extends Component {
 				return await this.setState({ errorsTable, showErrorTable: true })
 			}
 		}
+	}
+
+	onSelectDinamicDropdown = (optionsList, selectedItem) => {
+		this.setState({ selectedTurmasList: optionsList })
+	}
+
+	onRemoveDinamicDropdown = (optionsList, removedItem) => {
+		this.setState({ selectedTurmasList: optionsList })
+	}
+
+	getTurmas = async () => {
+		const turmasList = await server.get({ dataGroup: "turmas" })
+		turmasList.map(item => {
+			item.nome = `${item.ano ? item.ano : "?"} - ${
+				item.turno ? item.turno : "?"
+			} - ${item.nivel ? item.nivel : "?"} - ${item.serie ? item.serie : "?"}`
+			return item
+		})
+		this.setState({ initialTurmasList: turmasList, turmasList })
 	}
 
 	listOrderToggle = async state => {
@@ -228,17 +280,54 @@ export default class User extends Component {
 		this.setState({ list })
 	}
 
+	formValidation = async () => {
+		const { aluno, errors } = this.state
+		const { isValid, formErrors } = await notEmptyValidation(aluno, errors, [
+			"nome",
+			"email"
+		])
+		if (!isValid) {
+			this.setState({ errors: formErrors })
+			return false
+		}
+		if (isValid) {
+			this.setState({ errors: [] })
+			return true
+		}
+	}
+
 	handleSubmit = async event => {
 		event.preventDefault()
-		this.save()
+		const valid = await this.formValidation()
+		if (valid) {
+			await this.save()
+			await server.saveTurmasFromAluno(
+				this.state.selectedTurmasList,
+				this.state.aluno.id ? this.state.aluno.id : this.state.lastInsertedId
+			)
+		}
 	}
 
 	updateField = async event => {
-		console.clear()
-		console.log(event.target.name)
-		console.log(event.target.value)
 		const aluno = await updateFieldUtil(event, this.state.aluno)
 		this.setState({ aluno })
+	}
+
+	updateSearchQuery = async event => {
+		const search = await updateFieldUtil(event, this.state.search)
+		this.setState({ search })
+		this.listSearch()
+	}
+
+	listSearch = () => {
+		if (isEmpty(this.state.search.query)) {
+			this.setState({ list: this.state.initialList })
+		} else {
+			const term = this.state.search.query
+			const fuse = new Fuse(this.state.initialList, fuseOptions)
+			const list = fuse.search(term)
+			this.setState({ list })
+		}
 	}
 
 	clear = () => {
@@ -274,12 +363,14 @@ export default class User extends Component {
 					showUpdateButton={true}
 					showFilterButton={false}
 					showPrintButton={false}
-					showSearchBar={false}
 					addButtonText={"Registrar Aluno"}
 					updateButtonText={"Atualizar"}
 					update={() => {
 						window.location.reload()
 					}}
+					searchQuery={this.state.searchQuery}
+					searchOnChange={this.updateSearchQuery}
+					showSearchBar={true}
 				/>
 			)
 		}
@@ -296,6 +387,7 @@ export default class User extends Component {
 					saveButtonText="Salvar"
 					fieldState={this.state.aluno}
 					fieldList={this.fieldList}
+					selectedTurmasList={this.state.selectedTurmasList}
 				/>
 			)
 		}

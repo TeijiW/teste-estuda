@@ -7,6 +7,7 @@ import Password from "./Password"
 import ErrorAlert from "./ErrorAlert"
 import WarningAlert from "./WarningAlert"
 import NumberInput from "./NumberInput"
+import DinamicDropdown from "./DinamicDropdown"
 
 export default props => {
 	const { errors, fieldState, warnings } = props
@@ -23,7 +24,7 @@ export default props => {
 			const { type, name, label } = field
 			switch (type) {
 				case "Dropdown":
-					values = field.values
+					const { values } = field
 					return (
 						<Dropdown
 							style={renderError(name)}
@@ -32,6 +33,19 @@ export default props => {
 							name={name}
 							value={fieldState[name]}
 							onChange={event => props.updateField(event)}
+						/>
+					)
+				case "DinamicDropdown":
+					const { options, onSelect, onRemove } = field
+					const { selectedTurmasList } = props
+					return (
+						<DinamicDropdown
+							label={label}
+							style={renderError(name)}
+							selectedValues={selectedTurmasList}
+							options={options}
+							onSelect={onSelect}
+							onRemove={onRemove}
 						/>
 					)
 				case "TextInput":
@@ -136,12 +150,12 @@ export default props => {
 				<div className="row">{renderFields(props.fieldList)}</div>
 				<div className="row">
 					<div className="col-12 d-flex justify-content-end">
-						<button type="submit" className="btn btn-primary">
+						<button type="submit" className="btn btn-success">
 							{props.saveButtonText}
 						</button>
 						<button
 							type="button"
-							className="btn btn-secondary ml-2"
+							className="btn btn-danger ml-2"
 							onClick={() => props.clear()}
 						>
 							{renderClearButton()}

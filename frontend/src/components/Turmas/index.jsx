@@ -1,4 +1,6 @@
 import React, { Component } from "react"
+import { isEmpty } from "lodash"
+import Fuse from "fuse.js"
 import Form from "../CommonComponents/Form"
 import Table from "../CommonComponents/Table"
 import TableOptions from "../CommonComponents/TableOptions"
@@ -53,8 +55,8 @@ const thList = [
 const initialState = {
 	turma: {
 		id: "",
-		nivel: "",
-		turno: "",
+		nivel: "Fundamental",
+		turno: "Matutino",
 		ano: "2019",
 		serie: "",
 		id_escola: ""
@@ -62,12 +64,28 @@ const initialState = {
 	initialList: [],
 	list: [],
 	listOrder: "increasing",
+	listSortKey: "id",
+	search: {
+		query: "",
+		list: []
+	},
 	showErrorTable: false,
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
 	errorsTable: [],
-	errors: []
+	errors: [],
+	escolasList: [],
+	escolasObjectList: []
+}
+
+const fuseOptions = {
+	threshold: 0.2,
+	location: 0,
+	distance: 100,
+	maxPatternLength: 32,
+	minMatchCharLength: 3,
+	keys: ["nivel", "turno", "ano", "id_escola"]
 }
 
 export default class User extends Component {
@@ -102,20 +120,28 @@ export default class User extends Component {
 			label: "Série",
 			min: 1,
 			max: 9
-		},
-		{
-			type: "TextInput",
-			label: "Código da Escola",
-			name: "id_escola"
 		}
 	]
 
 	async componentWillMount() {
 		try {
 			const list = await server.get({ dataGroup: "turmas" })
+			await this.getEscolas()
+			// list.map(item => {
+			// 	this.state.escolasObjectList.map(escola => {
+			// 		if (item.id_escola === escola.id) item.id_escola = escola.nome
+			// 	})
+			// })
+			this.escolasShowName(list)
 			this.setState({ initialList: list })
 			this.setState({ list })
 			this.listSort("id")
+			this.fieldList.push({
+				type: "Dropdown",
+				label: "Seleção de Escola",
+				name: "id_escola",
+				values: this.state.escolasList
+			})
 		} catch (error) {
 			let errorTitle = { title: "Undefined error, please contact the admin" }
 			if (error.status && error.statusText) {
@@ -156,7 +182,7 @@ export default class User extends Component {
 		if (this.state.errors.length < 1) {
 			try {
 				turma.dataGroup = "turmas"
-				const response = await server.save(turma)
+				const response = await server.save(turma, this.state.escolasObjectList)
 				const responseWithID = { ...response, ...turma }
 				if (response.id) turma.id = response.id
 				const list = getUpdatedList(
@@ -168,7 +194,7 @@ export default class User extends Component {
 					turma: initialState.turma,
 					saveButtonText: initialState.saveButtonText
 				})
-				console.log(this.state.list)
+				this.escolasShowName(list)
 				await this.setState({ errors: [] })
 				this.formToggle()
 				this.setState({ fieldList: initialState.fieldList })
@@ -240,10 +266,46 @@ export default class User extends Component {
 
 	updateField = async event => {
 		console.clear()
-		console.log(event.target.name)
-		console.log(event.target.value)
 		const turma = await updateFieldUtil(event, this.state.turma)
 		this.setState({ turma })
+	}
+
+	updateSearchQuery = async event => {
+		const search = await updateFieldUtil(event, this.state.search)
+		this.setState({ search })
+		this.listSearch()
+	}
+
+	listSearch = () => {
+		if (isEmpty(this.state.search.query)) {
+			this.setState({ list: this.state.initialList })
+		} else {
+			const term = this.state.search.query
+			const fuse = new Fuse(this.state.initialList, fuseOptions)
+			const list = fuse.search(term)
+			this.setState({ list })
+		}
+	}
+
+	getEscolas = async () => {
+		const escolasList = await server.get({ dataGroup: "escolas" })
+		const escolasListArray = []
+		escolasList.map(item => {
+			escolasListArray.push(item.nome)
+		})
+		this.setState({
+			escolasObjectList: escolasList,
+			escolasList: escolasListArray
+		})
+	}
+
+	escolasShowName = list => {
+		list.map(item => {
+			this.state.escolasObjectList.map(escola => {
+				if (item.id_escola === escola.id) item.id_escola = escola.nome
+			})
+		})
+		return list
 	}
 
 	clear = () => {
@@ -279,12 +341,14 @@ export default class User extends Component {
 					showUpdateButton={true}
 					showFilterButton={false}
 					showPrintButton={false}
-					showSearchBar={false}
 					addButtonText={"Registrar Turma"}
 					updateButtonText={"Atualizar"}
 					update={() => {
 						window.location.reload()
 					}}
+					searchQuery={this.state.searchQuery}
+					searchOnChange={this.updateSearchQuery}
+					showSearchBar={true}
 				/>
 			)
 		}

@@ -3,8 +3,8 @@ import SearchBar from "./SearchBar"
 
 export default props => {
 	const tableOptionsBtnStyle = {
-		color: "#FFF",
-		backgroundColor: "#97a626",
+		color: "#EEE",
+		backgroundColor: "#3291b3",
 		marginRight: "10px",
 		marginLeft: "10px",
 		marginBottom: "10px",

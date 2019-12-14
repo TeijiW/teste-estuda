@@ -6,17 +6,18 @@ aside.menu-area {
 .menu a {
 	display: block;
 	text-decoration: none;
-	color: #0b280b;
+	color: #0c1f27;
 	font-weight: 500;
 	padding: 5px;
 }
 
 .menu a:hover {
-	background: #849121;
+	background: #3291b3;
 }
 
 .active-link {
-	border-left: 5px solid;
-	border-color: #0b280b;
-	background: #849121;
+	border-left: 3px solid;
+	border-bottom: 2px solid;
+	border-top: 2px solid;
+	background: #3291b3;
 }

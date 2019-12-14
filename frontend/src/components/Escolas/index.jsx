@@ -1,4 +1,6 @@
 import React, { Component } from "react"
+import { isEmpty } from "lodash"
+import Fuse from "fuse.js"
 import Form from "../CommonComponents/Form"
 import Table from "../CommonComponents/Table"
 import TableOptions from "../CommonComponents/TableOptions"
@@ -8,6 +10,7 @@ import api from "../../config/api"
 import updateFieldUtil from "../../utils/updateField"
 import exists from "../../utils/exists"
 import getUpdatedList from "../../utils/getUpdatedList"
+import notEmptyValidation from "../../utils/notEmptyValidation"
 
 const server = api()
 
@@ -61,6 +64,11 @@ const initialState = {
 	initialList: [],
 	list: [],
 	listOrder: "increasing",
+	listSortKey: "id",
+	search: {
+		query: "",
+		list: []
+	},
 	showErrorTable: false,
 	showTableOptions: true,
 	showTable: true,
@@ -69,13 +77,22 @@ const initialState = {
 	errors: []
 }
 
+const fuseOptions = {
+	threshold: 0.4,
+	location: 0,
+	distance: 100,
+	maxPatternLength: 32,
+	minMatchCharLength: 3,
+	keys: ["nome", "situacao", "endereco", "data"]
+}
+
 export default class User extends Component {
 	state = { ...initialState }
 
 	fieldList = [
 		{
 			type: "TextInput",
-			label: "Código",
+			label: "Código*",
 			name: "id"
 		},
 		{
@@ -159,7 +176,6 @@ export default class User extends Component {
 					escola: initialState.escola,
 					saveButtonText: initialState.saveButtonText
 				})
-				console.log(this.state.list)
 				await this.setState({ errors: [] })
 				this.formToggle()
 				this.setState({ fieldList: initialState.fieldList })
@@ -174,6 +190,7 @@ export default class User extends Component {
 
 	updateEscolasAPI = () => {
 		server.updateEscolas()
+		window.location.reload()
 		window.location.reload()
 	}
 
@@ -229,17 +246,47 @@ export default class User extends Component {
 		this.setState({ list })
 	}
 
+	formValidation = async () => {
+		const { escola, errors } = this.state
+		const { isValid, formErrors } = await notEmptyValidation(escola, errors, [
+			"id"
+		])
+		if (!isValid) {
+			this.setState({ errors: formErrors })
+			return false
+		}
+		if (isValid) {
+			this.setState({ errors: [] })
+			return true
+		}
+	}
+
 	handleSubmit = async event => {
 		event.preventDefault()
-		this.save()
+		const valid = await this.formValidation()
+		if (valid) this.save()
 	}
 
 	updateField = async event => {
-		console.clear()
-		console.log(event.target.name)
-		console.log(event.target.value)
 		const escola = await updateFieldUtil(event, this.state.escola)
 		this.setState({ escola })
+	}
+
+	updateSearchQuery = async event => {
+		const search = await updateFieldUtil(event, this.state.search)
+		this.setState({ search })
+		this.listSearch()
+	}
+
+	listSearch = () => {
+		if (isEmpty(this.state.search.query)) {
+			this.setState({ list: this.state.initialList })
+		} else {
+			const term = this.state.search.query
+			const fuse = new Fuse(this.state.initialList, fuseOptions)
+			const list = fuse.search(term)
+			this.setState({ list })
+		}
 	}
 
 	clear = () => {
@@ -275,10 +322,12 @@ export default class User extends Component {
 					showUpdateButton={true}
 					showFilterButton={false}
 					showPrintButton={false}
-					showSearchBar={false}
 					addButtonText={"Registrar Turma"}
 					updateButtonText={"Atualizar lista de escolas - API"}
 					update={this.updateEscolasAPI}
+					searchQuery={this.state.searchQuery}
+					searchOnChange={this.updateSearchQuery}
+					showSearchBar={true}
 				/>
 			)
 		}
