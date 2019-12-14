@@ -1,19 +1,19 @@
 <?php
 require_once "vendor/autoload.php";
 
-
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
     header('Access-Control-Allow-Credentials: true');
     header('Access-Control-Max-Age: 86400');
 }
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");         
-    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    }
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
         header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    }
 }
-
 
 use App\Model\Connection;
 use App\Model\Alunos;
@@ -22,11 +22,7 @@ use App\Model\Escolas;
 use App\Model\Router;
 
 $connection = new Connection();
-$alunos = new Alunos();
-$turmas = new Turmas();
-$escolas = new Escolas();
 $router = new Router();
-
 
 $router->route("get", "/alunos", function ($data) {
     $alunos = new Alunos();
@@ -48,12 +44,12 @@ $router->route("delete", "/alunos", function ($data) {
     $alunos->delete($data);
 });
 
-$router->route("post", "/alunos/turmas", function ($data){
+$router->route("post", "/alunos/turmas", function ($data) {
     $alunos = new Alunos();
     $alunos->saveTurmas($data);
 });
 
-$router->route("post", "/alunos/turmas/get", function ($data){
+$router->route("post", "/alunos/turmas/get", function ($data) {
     $alunos = new Alunos();
     $alunos->getTurmas($data);
 });
@@ -104,4 +100,3 @@ $router->route("post", "/escolas/api", function () {
 });
 
 $router->run();
-?>
