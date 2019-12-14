@@ -1,0 +1,5 @@
+{
+	"dbHost": "mysql:host=localhost;dbname=estuda;charset=utf8",
+	"dbUser": "root",
+	"dbPassword": ""
+}

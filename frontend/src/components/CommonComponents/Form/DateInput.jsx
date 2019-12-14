@@ -1,9 +1,8 @@
 import React from "react"
-import ReactDOM from "react-dom"
 import Cleave from "cleave.js/react"
 
 export default props => {
-	const { label, name, value, onChange, style } = props
+	const { label, name, onChange } = props
 	return (
 		<div className="col-12 col-md-6">
 			<div className="form-group">

@@ -20,7 +20,6 @@ export default props => {
 	}
 	const renderFields = fieldList => {
 		return fieldList.map(field => {
-			let values
 			const { type, name, label } = field
 			switch (type) {
 				case "Dropdown":

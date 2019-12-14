@@ -48,9 +48,14 @@ $router->route("delete", "/alunos", function ($data) {
     $alunos->delete($data);
 });
 
-$router->route("get", "/alunos/getLastID", function (){
+$router->route("post", "/alunos/turmas", function ($data){
     $alunos = new Alunos();
-    $alunos->getLastID();
+    $alunos->saveTurmas($data);
+});
+
+$router->route("post", "/alunos/turmas/get", function ($data){
+    $alunos = new Alunos();
+    $alunos->getTurmas($data);
 });
 
 $router->route("get", "/turmas", function ($data) {

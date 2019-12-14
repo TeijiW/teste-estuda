@@ -16,7 +16,12 @@ export default props => {
 					</tr>
 				</thead>
 				<tbody>
-					<Rows values={props.list} remove={props.remove} load={props.load} />
+					<Rows
+						values={props.list}
+						remove={props.remove}
+						load={props.load}
+						detail={props.detail}
+					/>
 				</tbody>
 			</table>
 		</div>

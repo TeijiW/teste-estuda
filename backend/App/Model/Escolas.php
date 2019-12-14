@@ -48,7 +48,7 @@ Class Escolas{
                     $result[$index]['data'] = $dateArray;
                 }
             }
-            echo json_encode($result);
+            echo json_encode($result, JSON_UNESCAPED_SLASHES);
         }else{
             http_response_code(204);
         }
@@ -115,7 +115,6 @@ Class Escolas{
     public function delete($data) {
         if(isset($data->id)){
             $sql = "delete from $this->table where id = $data->id;";
-            echo $sql;
             $stmt = Connection::getConnection()->prepare($sql);
             $stmt->execute() ? http_response_code(204) : http_response_code(400);
         }else{

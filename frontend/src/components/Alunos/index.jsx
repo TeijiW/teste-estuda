@@ -5,6 +5,7 @@ import Form from "../CommonComponents/Form"
 import Table from "../CommonComponents/Table"
 import TableOptions from "../CommonComponents/TableOptions"
 import ErrorTable from "../CommonComponents/ErrorTable"
+import Detail from "../CommonComponents/Details"
 import Main from "../CommonComponents/Templates/Main"
 import api from "../../config/api"
 import updateFieldUtil from "../../utils/updateField"
@@ -62,6 +63,14 @@ const initialState = {
 		nascimento: "",
 		genero: "Masculino"
 	},
+	alunoDetail: {
+		"Código Identificador": "",
+		Nome: "",
+		Telefone: "",
+		Email: "",
+		"Data de Nascimento": "",
+		Gênero: "Masculino"
+	},
 	initialList: [],
 	list: [],
 	listOrder: "increasing",
@@ -74,6 +83,7 @@ const initialState = {
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
+	showDetail: false,
 	errorsTable: [],
 	errors: [],
 	turmasList: [],
@@ -249,9 +259,52 @@ export default class User extends Component {
 		this.setState({
 			showForm: !this.state.showForm,
 			showTable: !this.state.showTable,
+			showDetail: false,
 			showTableOptions: !this.state.showTableOptions,
 			errors: []
 		})
+	}
+
+	detailToggle = async (item, justToggle = false) => {
+		const { showForm, showTable } = this.state
+		if (!justToggle) {
+			await this.setState({ aluno: item })
+			const { aluno } = this.state
+			const selectedTurmasList = await server.getTurmasFromAlunos(
+				this.state.aluno
+			)
+			await this.setState({ selectedTurmasList })
+			await this.setState({
+				alunoDetail: {
+					"Código Identificador": aluno.id,
+					Nome: aluno.nome,
+					Telefone: aluno.telefone,
+					Email: aluno.email,
+					"Data de Nascimento": aluno.nascimento,
+					Gênero: aluno.genero,
+					Turmas: this.state.selectedTurmasList
+				}
+			})
+		}
+		if (showForm || showTable) {
+			this.setState({
+				showForm: false,
+				showTable: false,
+				showTableOptions: false,
+				showDetail: true
+			})
+		}
+		if (!showForm && !showTable) {
+			this.setState({
+				showForm: false,
+				showTable: true,
+				showTableOptions: true,
+				showDetail: false,
+				selectedTurmasList: initialState.selectedTurmasList,
+				aluno: initialState.aluno,
+				alunoDetail: initialState.alunoDetail
+			})
+		}
 	}
 
 	listSort = async field => {
@@ -306,6 +359,7 @@ export default class User extends Component {
 				this.state.aluno.id ? this.state.aluno.id : this.state.lastInsertedId
 			)
 		}
+		this.setState({ selectedTurmasList: initialState.selectedTurmasList })
 	}
 
 	updateField = async event => {
@@ -335,8 +389,11 @@ export default class User extends Component {
 		this.setState({ aluno })
 		this.setState({ aluno: initialState.aluno })
 		this.formToggle()
-		this.setState({ saveButtonText: initialState.saveButtonText })
-		this.setState({ fieldList: initialState.fieldList })
+		this.setState({
+			saveButtonText: initialState.saveButtonText,
+			fieldList: initialState.fieldList,
+			selectedTurmasList: initialState.selectedTurmasList
+		})
 	}
 
 	renderTable = () => {
@@ -349,6 +406,7 @@ export default class User extends Component {
 					list={this.state.list}
 					remove={this.remove}
 					load={this.load}
+					detail={this.detailToggle}
 				/>
 			)
 		}
@@ -400,6 +458,17 @@ export default class User extends Component {
 		}
 	}
 
+	renderDetail = () => {
+		if (this.state.showDetail) {
+			return (
+				<Detail
+					item={this.state.alunoDetail}
+					detailToggle={this.detailToggle}
+				></Detail>
+			)
+		}
+	}
+
 	render() {
 		return (
 			<Main {...headerProps}>
@@ -407,6 +476,7 @@ export default class User extends Component {
 				{this.renderTableOptions()}
 				{this.renderTable()}
 				{this.renderForm()}
+				{this.renderDetail()}
 			</Main>
 		)
 	}

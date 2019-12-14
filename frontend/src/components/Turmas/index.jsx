@@ -5,6 +5,7 @@ import Form from "../CommonComponents/Form"
 import Table from "../CommonComponents/Table"
 import TableOptions from "../CommonComponents/TableOptions"
 import ErrorTable from "../CommonComponents/ErrorTable"
+import Detail from "../CommonComponents/Details"
 import Main from "../CommonComponents/Templates/Main"
 import api from "../../config/api"
 import updateFieldUtil from "../../utils/updateField"
@@ -61,6 +62,14 @@ const initialState = {
 		serie: "",
 		id_escola: ""
 	},
+	turmaDetail: {
+		"Código de Identificação": "",
+		Nível: "Fundamental",
+		Turno: "Matutino",
+		Ano: "2019",
+		Série: "",
+		Escola: ""
+	},
 	initialList: [],
 	list: [],
 	listOrder: "increasing",
@@ -73,6 +82,7 @@ const initialState = {
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
+	showDetail: false,
 	errorsTable: [],
 	errors: [],
 	escolasList: [],
@@ -127,11 +137,6 @@ export default class User extends Component {
 		try {
 			const list = await server.get({ dataGroup: "turmas" })
 			await this.getEscolas()
-			// list.map(item => {
-			// 	this.state.escolasObjectList.map(escola => {
-			// 		if (item.id_escola === escola.id) item.id_escola = escola.nome
-			// 	})
-			// })
 			this.escolasShowName(list)
 			this.setState({ initialList: list })
 			this.setState({ list })
@@ -233,6 +238,38 @@ export default class User extends Component {
 		})
 	}
 
+	detailToggle = async item => {
+		const { showForm, showTable } = this.state
+		await this.setState({ turma: item })
+		const { turma } = this.state
+		await this.setState({
+			turmaDetail: {
+				"Código de Identificação": turma.id,
+				Nível: turma.nivel,
+				Turno: turma.turno,
+				Ano: turma.ano,
+				Série: turma.serie,
+				Escola: turma.id_escola
+			}
+		})
+		if (showForm || showTable) {
+			this.setState({
+				showForm: false,
+				showTable: false,
+				showTableOptions: false,
+				showDetail: true
+			})
+		}
+		if (!showForm && !showTable) {
+			this.setState({
+				showForm: false,
+				showTable: true,
+				showTableOptions: true,
+				showDetail: false
+			})
+		}
+	}
+
 	listSort = async field => {
 		if (this.state.listSortKey === field) {
 			await this.listOrderToggle(this.state)
@@ -292,6 +329,7 @@ export default class User extends Component {
 		const escolasListArray = []
 		escolasList.map(item => {
 			escolasListArray.push(item.nome)
+			return item
 		})
 		this.setState({
 			escolasObjectList: escolasList,
@@ -303,7 +341,9 @@ export default class User extends Component {
 		list.map(item => {
 			this.state.escolasObjectList.map(escola => {
 				if (item.id_escola === escola.id) item.id_escola = escola.nome
+				return escola
 			})
+			return item
 		})
 		return list
 	}
@@ -327,6 +367,7 @@ export default class User extends Component {
 					list={this.state.list}
 					remove={this.remove}
 					load={this.load}
+					detail={this.detailToggle}
 				/>
 			)
 		}
@@ -377,6 +418,17 @@ export default class User extends Component {
 		}
 	}
 
+	renderDetail = () => {
+		if (this.state.showDetail) {
+			return (
+				<Detail
+					item={this.state.turmaDetail}
+					detailToggle={this.detailToggle}
+				></Detail>
+			)
+		}
+	}
+
 	render() {
 		return (
 			<Main {...headerProps}>
@@ -384,6 +436,7 @@ export default class User extends Component {
 				{this.renderTableOptions()}
 				{this.renderTable()}
 				{this.renderForm()}
+				{this.renderDetail()}
 			</Main>
 		)
 	}

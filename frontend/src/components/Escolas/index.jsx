@@ -5,6 +5,7 @@ import Form from "../CommonComponents/Form"
 import Table from "../CommonComponents/Table"
 import TableOptions from "../CommonComponents/TableOptions"
 import ErrorTable from "../CommonComponents/ErrorTable"
+import Detail from "../CommonComponents/Details"
 import Main from "../CommonComponents/Templates/Main"
 import api from "../../config/api"
 import updateFieldUtil from "../../utils/updateField"
@@ -61,6 +62,13 @@ const initialState = {
 		data: "",
 		situacao: ""
 	},
+	escolaDetail: {
+		"Código de Identificação": "",
+		Nome: "",
+		Endereço: "",
+		"Última Atualização": "",
+		Situação: ""
+	},
 	initialList: [],
 	list: [],
 	listOrder: "increasing",
@@ -73,6 +81,7 @@ const initialState = {
 	showTableOptions: true,
 	showTable: true,
 	showForm: false,
+	showDetail: false,
 	errorsTable: [],
 	errors: []
 }
@@ -220,6 +229,39 @@ export default class User extends Component {
 		})
 	}
 
+	detailToggle = async item => {
+		const { showForm, showTable } = this.state
+		await this.setState({ escola: item })
+		const { escola } = this.state
+		await this.setState({
+			escolaDetail: {
+				"Código de Identificação": escola.id,
+				Nome: escola.nome,
+				Endereço: escola.endereco,
+				"Última Atualização": escola.data,
+				Situação: escola.situacao
+			}
+		})
+		if (showForm || showTable) {
+			this.setState({
+				showForm: false,
+				showTable: false,
+				showTableOptions: false,
+				showDetail: true
+			})
+		}
+		if (!showForm && !showTable) {
+			this.setState({
+				showForm: false,
+				showTable: true,
+				showTableOptions: true,
+				showDetail: false
+			})
+		}
+	}
+
+	detail = item => {}
+
 	listSort = async field => {
 		if (this.state.listSortKey === field) {
 			await this.listOrderToggle(this.state)
@@ -308,6 +350,7 @@ export default class User extends Component {
 					list={this.state.list}
 					remove={this.remove}
 					load={this.load}
+					detail={this.detailToggle}
 				/>
 			)
 		}
@@ -356,6 +399,17 @@ export default class User extends Component {
 		}
 	}
 
+	renderDetail = () => {
+		if (this.state.showDetail) {
+			return (
+				<Detail
+					item={this.state.escolaDetail}
+					detailToggle={this.detailToggle}
+				></Detail>
+			)
+		}
+	}
+
 	render() {
 		return (
 			<Main {...headerProps}>
@@ -363,6 +417,7 @@ export default class User extends Component {
 				{this.renderTableOptions()}
 				{this.renderTable()}
 				{this.renderForm()}
+				{this.renderDetail()}
 			</Main>
 		)
 	}

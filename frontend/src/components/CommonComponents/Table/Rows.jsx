@@ -2,13 +2,12 @@ import React from "react"
 
 export default props => {
 	const renderTd = item => {
-		if (item.titulo_campus) delete item.titulo_campus
-		if (item.password_user) delete item.password_user
 		const itemKeys = Object.keys(item)
 		return itemKeys.map(key => {
 			if (key !== "dataGroup") {
 				return <td>{item[key]}</td>
 			}
+			return key
 		})
 	}
 
@@ -19,7 +18,7 @@ export default props => {
 					{renderTd(item)}
 					<td>
 						<button
-							className="btn btn-warning"
+							className="btn btn-warning ml-2"
 							onClick={() => props.load(item)}
 						>
 							<i className="fa fa-pencil" />
@@ -29,6 +28,12 @@ export default props => {
 							onClick={() => props.remove(item)}
 						>
 							<i className="fa fa-trash" />
+						</button>
+						<button
+							className="btn btn-primary ml-2"
+							onClick={() => props.detail(item)}
+						>
+							<i className="fa fa-info" />
 						</button>
 					</td>
 				</tr>

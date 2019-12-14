@@ -38,7 +38,8 @@ foreign key(id_escola) references escolas(id)
 create table if not exists alunos_turmas(
 id_aluno int,
 id_turma int,
-foreign key(id_aluno) references alunos(id),
-foreign key(id_turma) references turmas(id)
+foreign key(id_aluno) references alunos(id) on delete cascade,
+foreign key(id_turma) references turmas(id) on delete cascade,
+primary key(id_aluno, id_turma)
 )DEFAULT CHARSET=utf8mb4;
 

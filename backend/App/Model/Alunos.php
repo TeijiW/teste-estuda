@@ -89,7 +89,6 @@ Class Alunos{
             if ($stmt->execute()){
                 http_response_code(204);
             }else{
-                // var_dump( $stmt->errorInfo()); 
                 http_response_code(500);
             }
         }else{
@@ -101,12 +100,40 @@ Class Alunos{
         if(isset($data->id)){
             $sql = "delete from $this->table where id = $data->id;";
             $stmt = Connection::getConnection()->prepare($sql);
-            // $stmt->execute() ? http_response_code(204) : http_response_code(400);
-            if ($stmt->execute()){
-                http_response_code(200);
+            $stmt->execute() ? http_response_code(204) : http_response_code(400);
+        }else{
+            http_response_code(400);
+        }
+    }
+
+    public function saveTurmas($data){
+        $sql = "delete from alunos_turmas where id_aluno = $data->id_aluno;";
+        $sql .= "replace into alunos_turmas (id_aluno, id_turma) values ";
+        $turmasLength = count($data->turmas);
+        $index = 0;
+        foreach($data->turmas as $turma){
+            $index += 1;
+            $sql .= "($data->id_aluno, $turma->id)";
+            if($index !== $turmasLength){
+                $sql .= " ,";
             }else{
-                var_dump( $stmt->errorInfo()); 
-                http_response_code(500);
+                $sql .= ";";
+            }
+        }
+        $stmt = Connection::getConnection()->prepare($sql);
+        $stmt->execute() ? http_response_code(204) : http_response_code(500);
+    }
+
+    public function getTurmas($data){
+        if (isset($data->id)){
+            $sql = "select turmas.id, turmas.nivel, turmas.turno, turmas.ano, turmas.serie, turmas.id_escola from turmas, alunos, alunos_turmas where turmas.id = alunos_turmas.id_turma and alunos_turmas.id_aluno = $data->id and alunos.id = $data->id";
+            $stmt = Connection::getConnection()->prepare($sql);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0){
+                $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                echo json_encode($result, JSON_UNESCAPED_SLASHES);
+            }else{
+                http_response_code(204);
             }
         }else{
             http_response_code(400);

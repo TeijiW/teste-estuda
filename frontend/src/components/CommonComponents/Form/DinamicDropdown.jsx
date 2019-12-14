@@ -2,7 +2,7 @@ import React from "react"
 import { Multiselect } from "multiselect-react-dropdown"
 
 export default props => {
-	const { name, label, options, onSelect, onRemove } = props
+	const { label, options, onSelect, onRemove } = props
 	let { selectedValues } = props
 	if (!selectedValues) {
 		selectedValues = []

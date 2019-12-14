@@ -16,7 +16,7 @@ export default props => {
 					<i className="fa fa-book fa-fw" /> Turmas
 				</NavLink>
 				<NavLink activeClassName="active-link" to="/escolas">
-					<i className="fa fa-school fa-fw" /> Escolas
+					<i className="fas fa-school" /> Escolas
 				</NavLink>
 			</nav>
 		</aside>

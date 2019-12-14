@@ -31,6 +31,7 @@ const api = () => {
 			if (dataGroup === "turmas") {
 				extraArray.map(item => {
 					if (item.nome === data.id_escola) data.id_escola = item.id
+					return item
 				})
 			}
 			try {
@@ -54,7 +55,7 @@ const api = () => {
 		delete data.dataGroup
 		if (dataGroup && dataGroup !== "") {
 			try {
-				const response = await axios.delete("/" + dataGroup, {
+				await axios.delete("/" + dataGroup, {
 					data: { id },
 					headers: { Authorization: "***" }
 				})
@@ -74,7 +75,7 @@ const api = () => {
 
 	const saveTurmasFromAluno = async (turmas, id_aluno) => {
 		try {
-			const response = await axios.post("/alunos/turmas", {
+			await axios.post("/alunos/turmas", {
 				turmas,
 				id_aluno
 			})
