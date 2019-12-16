@@ -18,4 +18,4 @@
 ## 2. Observações
 
 -   Não há sistema de autenticação para tornar mais agradável a experiência de um teste do sistema
--   O caminho "ideal" para o backend seria `localhost/GrupoEstuda/backend`
+-   O caminho "ideal" para o backend seria `localhost/teste-estuda/backend`

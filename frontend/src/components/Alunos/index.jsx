@@ -115,11 +115,6 @@ export default class User extends Component {
 	fieldList = [
 		{
 			type: "TextInput",
-			label: "Código",
-			name: "id"
-		},
-		{
-			type: "TextInput",
 			label: "Nome*",
 			name: "nome"
 		},
@@ -161,7 +156,9 @@ export default class User extends Component {
 				onSelect: this.onSelectDinamicDropdown
 			})
 		} catch (error) {
-			let errorTitle = { title: "Undefined error, please contact the admin" }
+			let errorTitle = {
+				title: "Undefined error, please contact the admin"
+			}
 			if (error.status && error.statusText) {
 				const errorString = `${error.status}: ${error.statusText}`
 				errorTitle = { title: errorString }
@@ -180,6 +177,7 @@ export default class User extends Component {
 		const selectedTurmasList = await server.getTurmasFromAlunos(aluno)
 		await this.setState({ selectedTurmasList })
 		this.setState({ aluno })
+		console.log(this.state.aluno)
 		if (!this.state.showForm) this.formToggle()
 	}
 
@@ -220,9 +218,14 @@ export default class User extends Component {
 				this.setState({ fieldList: initialState.fieldList })
 			} catch (error) {
 				const { errorsTable } = this.state
-				errorsTable.push({ title: error.message ? error.message : error })
+				errorsTable.push({
+					title: error.message ? error.message : error
+				})
 				this.formToggle()
-				return await this.setState({ errorsTable, showErrorTable: true })
+				return await this.setState({
+					errorsTable,
+					showErrorTable: true
+				})
 			}
 		}
 	}
@@ -242,7 +245,9 @@ export default class User extends Component {
 		turmasList.map(item => {
 			item.nome = `${item.ano ? item.ano : "?"} - ${
 				item.turno ? item.turno : "?"
-			} - ${item.nivel ? item.nivel : "?"} - ${item.serie ? item.serie : "?"}`
+			} - ${item.nivel ? item.nivel : "?"} - ${
+				item.serie ? item.serie : "?"
+			}`
 			return item
 		})
 		this.setState({ turmasList })
@@ -348,10 +353,11 @@ export default class User extends Component {
 
 	formValidation = async () => {
 		const { aluno, errors } = this.state
-		const { isValid, formErrors } = await notEmptyValidation(aluno, errors, [
-			"nome",
-			"email"
-		])
+		const { isValid, formErrors } = await notEmptyValidation(
+			aluno,
+			errors,
+			["nome", "email"]
+		)
 		if (!isValid) {
 			this.setState({ errors: formErrors })
 			return false
@@ -369,7 +375,9 @@ export default class User extends Component {
 			await this.save()
 			await server.saveTurmasFromAluno(
 				this.state.selectedTurmasList,
-				this.state.aluno.id ? this.state.aluno.id : this.state.lastInsertedId
+				this.state.aluno.id
+					? this.state.aluno.id
+					: this.state.lastInsertedId
 			)
 		}
 		this.setState({ selectedTurmasList: initialState.selectedTurmasList })

@@ -108,11 +108,6 @@ export default class User extends Component {
 	fieldList = [
 		{
 			type: "TextInput",
-			label: "Código*",
-			name: "id"
-		},
-		{
-			type: "TextInput",
 			label: "Nome",
 			name: "nome"
 		},
@@ -141,7 +136,9 @@ export default class User extends Component {
 			this.setState({ list })
 			this.listSort("id")
 		} catch (error) {
-			let errorTitle = { title: "Undefined error, please contact the admin" }
+			let errorTitle = {
+				title: "Undefined error, please contact the admin"
+			}
 			if (error.status && error.statusText) {
 				const errorString = `${error.status}: ${error.statusText}`
 				errorTitle = { title: errorString }
@@ -197,9 +194,14 @@ export default class User extends Component {
 				this.setState({ fieldList: initialState.fieldList })
 			} catch (error) {
 				const { errorsTable } = this.state
-				errorsTable.push({ title: error.message ? error.message : error })
+				errorsTable.push({
+					title: error.message ? error.message : error
+				})
 				this.formToggle()
-				return await this.setState({ errorsTable, showErrorTable: true })
+				return await this.setState({
+					errorsTable,
+					showErrorTable: true
+				})
 			}
 		}
 	}
@@ -300,9 +302,11 @@ export default class User extends Component {
 
 	formValidation = async () => {
 		const { escola, errors } = this.state
-		const { isValid, formErrors } = await notEmptyValidation(escola, errors, [
-			"id"
-		])
+		const { isValid, formErrors } = await notEmptyValidation(
+			escola,
+			errors,
+			["nome"]
+		)
 		if (!isValid) {
 			this.setState({ errors: formErrors })
 			return false

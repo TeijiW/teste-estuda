@@ -111,11 +111,6 @@ export default class User extends Component {
 	// Lista e configurações dos campos do formulário
 	fieldList = [
 		{
-			type: "TextInput",
-			label: "Código",
-			name: "id"
-		},
-		{
 			type: "Dropdown",
 			label: "Nível/Ensino",
 			name: "nivel",
@@ -156,7 +151,9 @@ export default class User extends Component {
 				values: this.state.escolasList
 			})
 		} catch (error) {
-			let errorTitle = { title: "Undefined error, please contact the admin" }
+			let errorTitle = {
+				title: "Undefined error, please contact the admin"
+			}
 			if (error.status && error.statusText) {
 				const errorString = `${error.status}: ${error.statusText}`
 				errorTitle = { title: errorString }
@@ -195,7 +192,10 @@ export default class User extends Component {
 		if (this.state.errors.length < 1) {
 			try {
 				turma.dataGroup = "turmas"
-				const response = await server.save(turma, this.state.escolasObjectList)
+				const response = await server.save(
+					turma,
+					this.state.escolasObjectList
+				)
 				const responseWithID = { ...response, ...turma }
 				if (response.id) turma.id = response.id
 				const list = getUpdatedList(
@@ -213,9 +213,14 @@ export default class User extends Component {
 				this.setState({ fieldList: initialState.fieldList })
 			} catch (error) {
 				const { errorsTable } = this.state
-				errorsTable.push({ title: error.message ? error.message : error })
+				errorsTable.push({
+					title: error.message ? error.message : error
+				})
 				this.formToggle()
-				return await this.setState({ errorsTable, showErrorTable: true })
+				return await this.setState({
+					errorsTable,
+					showErrorTable: true
+				})
 			}
 		}
 	}

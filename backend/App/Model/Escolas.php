@@ -7,10 +7,9 @@ class Escolas
 {
     private $table = "escolas";
     private $keys = ["nome", "endereco", "data", "situacao"];
-
+    
     public function updateWithAPI()
     {
-        $keysAPI = ["cod", "nome", "anoCenso", "situacaoFuncionamentoTxt"];
         $url = 'http://educacao.dadosabertosbr.com/api/escolas/buscaavancada?nome=master&estado=MT';
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -62,13 +61,14 @@ class Escolas
     // Ajustar
     public function create($data)
     {
+        $keysForCreate = ["nome", "endereco", "data", "situacao"];
         $util = new Util();
         $data->data = date("Y-m-d");
-        $data = $util->setObjectSchema($data, $this->keys);
+        $data = $util->setObjectSchema($data, $keysForCreate);
         $data = $util->isEmptyString($data);
         $sql = "insert into $this->table (nome, endereco, data, situacao ) values (?, ?, ?, ?)";
         $stmt = Connection::getConnection()->prepare($sql);
-        foreach ($this->keys as $index => $value) {
+        foreach ($keysForCreate as $index => $value) {
             $stmt->bindValue($index+1, $data->{$value});
         }
         $stmt->execute() ? http_response_code(200) : http_response_code(400);

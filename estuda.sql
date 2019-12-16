@@ -15,7 +15,7 @@ primary key (id)
 )DEFAULT CHARSET=utf8mb4;
 
 create table if not exists escolas(
-id int not null,
+id int auto_increment not null,
 nome varchar(60),
 endereco varchar(60),
 `data` date not null,
@@ -42,4 +42,8 @@ foreign key(id_aluno) references alunos(id) on delete cascade,
 foreign key(id_turma) references turmas(id) on delete cascade,
 primary key(id_aluno, id_turma)
 )DEFAULT CHARSET=utf8mb4;
+
+replace into escolas (id, nome, data, situacao) values (51036207, 'CEEF COLEGIO MASTER JUNIOR', '2019-12-16', 'Em atividade') ,(51036193, 'CENTRO EDUC ALBERT EINSTEIN COLEGIO MASTER', '2019-12-16', 'Em atividade') ,(51064910, 'MASTER
+CENTRO DE ENSINO LTDA', '2019-12-16', 'Em atividade') ,(51024543, 'MCE MASTER CENTRO EDUCACIONAL', '2019-12-16',
+'Paralisada');
 
