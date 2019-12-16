@@ -380,7 +380,7 @@ export default class User extends Component {
 					showUpdateButton={true}
 					showFilterButton={false}
 					showPrintButton={false}
-					addButtonText={"Registrar Turma"}
+					addButtonText={"Registrar Escola"}
 					updateButtonText={"Atualizar lista de escolas - API"}
 					update={this.updateEscolasAPI}
 					searchQuery={this.state.searchQuery}
