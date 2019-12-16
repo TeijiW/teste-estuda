@@ -33,7 +33,7 @@ export default props => {
 							className="btn btn-primary ml-2"
 							onClick={() => props.detail(item)}
 						>
-							<i className="fa fa-info" />
+							<i className="fa fa-info-circle" />
 						</button>
 					</td>
 				</tr>

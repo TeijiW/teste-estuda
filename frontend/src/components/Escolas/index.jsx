@@ -62,7 +62,7 @@ const initialState = {
 		nome: "",
 		endereco: "",
 		data: "",
-		situacao: ""
+		situacao: "Em atividade"
 	},
 	// Objeto para os detalhes
 	escolaDetail: {
@@ -192,6 +192,7 @@ export default class User extends Component {
 				await this.setState({ errors: [] })
 				this.formToggle()
 				this.setState({ fieldList: initialState.fieldList })
+				window.location.reload()
 			} catch (error) {
 				const { errorsTable } = this.state
 				errorsTable.push({
